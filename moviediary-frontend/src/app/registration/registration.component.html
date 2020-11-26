@@ -1,0 +1,25 @@
+<div class="form-group row">
+    <div class="form-group row">Create a new account!</div><br/>
+    <div class="register-item">
+      <form #registerForm="ngForm" (ngSubmit)="register(registerForm.value)" class="form form-register">
+
+        <div class="form-field">
+              <label class="col-sm-2 col-form-label" for="registerUsername">Username</label>
+              <input name="username" id="registerUsername" type="email" class="form-control" placeholder="Name" ngModel required #username="ngModel">
+        </div>
+        <div class="form-field">
+          <label class="col-sm-2 col-form-label" for="registerEmail">Email</label>
+          <input name="Email" id="registerEmail" type="email" class="form-control" placeholder="Email" ngModel required #email="ngModel">
+        </div>
+
+        <div class="form-field">
+          <label class="col-sm-2 col-form-label" for="registerPassword">Password</label>
+          <input name="password" id="registerPassword" type="password" class="form-control" placeholder="Password" ngModel required #password="ngModel">
+        </div>
+
+        <div class="form-field">
+          <input type="submit" value="Register">
+        </div>
+      </form>
+    </div>
+</div>
