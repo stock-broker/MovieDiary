@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using MovieDiary.Data;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MovieDiary.Controllers
 {
-    
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ReviewsController : ControllerBase
@@ -39,6 +40,7 @@ namespace MovieDiary.Controllers
             if (reviewItem == null) return NotFound();
 
             return Ok(_mapper.Map<ReviewReadDto>(reviewItem));
+            
         }
         [EnableCors("CorsPolicy")]
         [HttpPost]

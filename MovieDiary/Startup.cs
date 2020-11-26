@@ -9,6 +9,14 @@ using Microsoft.Extensions.Hosting;
 using MovieDiary.Data;
 using System;
 using Microsoft.AspNetCore.Cors;
+using MovieDiary.Identity;
+using Microsoft.AspNetCore.Identity;
+using MovieDiary.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Collections.Generic;
+
 namespace MovieDiary
 {
     public class Startup
@@ -26,8 +34,41 @@ namespace MovieDiary
             services.AddDbContext<ReviewContext>(opt => opt.UseNpgsql
                 (Configuration.GetConnectionString("MovieDbConnection")));
 
-            
-            services.AddCors();
+            services.AddDbContext<AppIdentityDbContext>(options => options.UseNpgsql
+                (Configuration.GetConnectionString("MovieDbConnection")));
+
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<AppIdentityDbContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+                {
+                    options.SaveToken = true;
+                    options.RequireHttpsMetadata = false;
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        //ValidAudiences = new[] { "http://localhost:4200/register", "http://localhost:4200/login" },
+                        ValidAudience = Configuration["JWT: ValidAudience"],
+                        ValidIssuer = Configuration["JWT: ValidIssuer"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
+                    };
+                });
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+            });
+
             services.AddControllers();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped<IReviewRepo, SqlReviewAPIRepo>();
@@ -41,18 +82,17 @@ namespace MovieDiary
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 
-            app.UseCors(options =>
-               options.SetIsOriginAllowedToAllowWildcardSubdomains().AllowAnyOrigin().AllowAnyHeader().AllowCredentials());
+            app.UseCors("CorsPolicy");
 
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers().RequireCors("CorsPolicy");
+                endpoints.MapControllers();
             });
         }
     }

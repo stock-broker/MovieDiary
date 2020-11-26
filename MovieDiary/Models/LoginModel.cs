@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace MovieDiary.Models
 {
-    public class RegistrationModel
+    public class LoginModel
     {
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
         [Required]
         public string Username { get; set; }
         [Required]
