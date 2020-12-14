@@ -35,15 +35,9 @@ namespace MovieDiary.Controllers
         {
             var reviewItems = _repository.GetAllReviews();
             var user = _userManager.GetUserAsync(User);
-            if (user.IsCompleted)
-            {               
-                return Ok(_mapper.Map<IEnumerable<ReviewReadDto>>(reviewItems));
-
-            }
+                    
+            return Ok(_mapper.Map<IEnumerable<ReviewReadDto>>(reviewItems));
             
-
-            //return Ok(_mapper.Map<IEnumerable<ReviewReadDto>>(reviewItems));
-            return Ok("fuck");
         }
 
         [EnableCors("CorsPolicy")]
