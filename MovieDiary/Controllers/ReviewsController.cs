@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MovieDiary.Authentication;
 using MovieDiary.Data;
 using MovieDiary.Dtos;
 using MovieDiary.Models;
@@ -12,26 +14,38 @@ using System.Threading.Tasks;
 
 namespace MovieDiary.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ReviewsController : ControllerBase
     {
         private readonly IReviewRepo _repository;
         private readonly IMapper _mapper;
-        public ReviewsController(IReviewRepo repository, IMapper mapper)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public ReviewsController(IReviewRepo repository, IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _repository = repository;
             _mapper = mapper;
+            _userManager = userManager;
+
         }
         [EnableCors("CorsPolicy")]
         [HttpGet]
-        public ActionResult<IEnumerable<ReviewReadDto>> GetAllReviews()
+        public  ActionResult<IEnumerable<ReviewReadDto>> GetAllReviews()
         {
             var reviewItems = _repository.GetAllReviews();
+            var user = _userManager.GetUserAsync(User);
+            if (user.IsCompleted)
+            {               
+                return Ok(_mapper.Map<IEnumerable<ReviewReadDto>>(reviewItems));
 
-            return Ok(_mapper.Map<IEnumerable<ReviewReadDto>>(reviewItems));
+            }
+            
+
+            //return Ok(_mapper.Map<IEnumerable<ReviewReadDto>>(reviewItems));
+            return Ok("fuck");
         }
+
         [EnableCors("CorsPolicy")]
         [HttpGet("{id}", Name ="GetReviewById")]
         public ActionResult<ReviewReadDto> GetReviewById(int id)
